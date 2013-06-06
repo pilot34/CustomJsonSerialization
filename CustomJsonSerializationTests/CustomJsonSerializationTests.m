@@ -152,8 +152,9 @@
     task2.deleted = YES;
     
     lect1.title = @"as dasdasd asddsjvnxcjvn123 12";
-    lect1.tasks = @[ task1, task2 ];
-    lect1.results = @{ @"result1" : @6, @"result2" : @10, @"result4" : task2 };
+    lect1.tasks = @[ task1, task2, NSNull.null ];
+    lect1.results = @{ @"result1" : @6, @"result2" : @10, @"result4" : task2, @"res2asdsad" : NSNull.null };
+    lect1.secondDate = NSDate.date;
     
     Lecture *lect;
     NSData *data;
@@ -163,6 +164,8 @@
     STAssertEqualObjects(lect.title, lect1.title, nil);
     STAssertEqualObjects(lect.tasks, lect1.tasks, nil);
     STAssertEqualObjects(lect.results, lect1.results, nil);
+    STAssertEqualObjects(lect.date, lect1.date, nil);
+    STAssertEqualsWithAccuracy(lect.secondDate.timeIntervalSince1970, lect1.secondDate.timeIntervalSince1970, 0.0001, nil);
 }
 
 @end

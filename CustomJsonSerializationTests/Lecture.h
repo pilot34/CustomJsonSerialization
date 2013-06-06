@@ -13,5 +13,8 @@
 @property (strong, nonatomic) NSString *title;
 @property (strong, nonatomic) NSArray *tasks;
 @property (strong, nonatomic) NSDictionary *results;
+@property (strong, nonatomic) NSDate *date;
+@property (strong, nonatomic) NSDate *secondDate;
+@property (nonatomic) NSTimeInterval timeInterval;
 
 @end

@@ -26,13 +26,14 @@
     return (!object
             || object == NSNull.null
             || [object isKindOfClass:NSString.class]
-            || [object isKindOfClass:NSNumber.class]
-            || [object isKindOfClass:NSDate.class]);
+            || [object isKindOfClass:NSNumber.class]);
 }
 
 - (NSString *)classNameForObject:(NSObject *)obj
 {
-    if ([obj isKindOfClass:NSArray.class])
+    if ([obj isKindOfClass:NSDate.class])
+        return NSStringFromClass(NSDate.class);
+    else if ([obj isKindOfClass:NSArray.class])
         return NSStringFromClass(NSArray.class);
     else if ([obj isKindOfClass:NSSet.class])
         return NSStringFromClass(NSSet.class);
@@ -189,6 +190,11 @@
     return @{ [self keyForObject:set] : vals };
 }
 
+- (NSDictionary *)encodeDate:(NSDate *)date
+{
+    return @{ [self keyForObject:date] : @([date timeIntervalSince1970]) };
+}
+
 - (id)encodeCurrentObject:(id)object 
 {
     if (!object || object == NSNull.null)
@@ -198,6 +204,10 @@
     else if ([self isPrimitiveObject:object])
     {
         return object;
+    }
+    else if ([object isKindOfClass:NSDate.class])
+    {
+        return [self encodeDate:object];
     }
     else if ([object isKindOfClass:NSArray.class])
     {
@@ -325,11 +335,11 @@
 
 - (id)decodeCurrentObject:(id)value
 {
-    if ([self isPrimitiveObject:value])
+    if (value == NSNull.null || !value)
     {
-        return value;
+        return nil;
     }
-    else if (value == NSNull.null)
+    else if ([self isPrimitiveObject:value])
     {
         return value;
     }
@@ -361,7 +371,11 @@
         @throw [NSException exceptionWithName:@"Error" reason:error userInfo:nil];
     }
     
-    if (cls == NSArray.class)
+    if (cls == NSDate.class)
+    {
+        return [self decodeDate:dict[key]];
+    }
+    else if (cls == NSArray.class)
     {
         return [self decodeArray:dict[key]];
     }
@@ -394,12 +408,22 @@
     }
 }
 
+- (id)decodeDate:(id)num
+{
+    if (num == NSNull.null)
+        return nil;
+    
+    return [NSDate dateWithTimeIntervalSince1970:[num doubleValue]];
+}
+
 - (id)decodeArray:(NSArray *)arr
 {
     NSMutableArray *res = [NSMutableArray array];
     for (id obj in arr)
     {
         id decoded = [self decodeCurrentObject:obj];
+        if (!decoded)
+            decoded = NSNull.null;
         [res addObject:decoded];
     }
     return res;
@@ -411,6 +435,8 @@
     for (id obj in set)
     {
         id decoded = [self decodeCurrentObject:obj];
+        if (!decoded)
+            decoded = NSNull.null;
         [res addObject:decoded];
     }
     return res;
@@ -422,6 +448,8 @@
     for (id key in dict)
     {
         id decoded = [self decodeCurrentObject:dict[key]];
+        if (!decoded)
+            decoded = NSNull.null;
         [res setObject:decoded forKey:key];
     }
     return res;
