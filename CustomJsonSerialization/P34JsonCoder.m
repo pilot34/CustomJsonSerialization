@@ -81,6 +81,12 @@
                                                          options:0
                                                            error:nil];
     
+    if (!dict)
+        return nil;
+    
+    if (!dict[ROOT_OBJECT_KEY])
+        return nil;
+    
     P34JsonCoder *coder = [[P34JsonCoder alloc] init];
     [coder.sourceDictionaryStack addObject:dict[ROOT_OBJECT_KEY]];
     return [coder decodeObject];
@@ -151,7 +157,8 @@
     for (id obj in array)
     {
         id encoded = [self encodeCurrentObject:obj];
-        [vals addObject:encoded];
+        if (encoded)
+            [vals addObject:encoded];
     }
     
     return @{ [self keyForObject:array] : vals };
@@ -184,7 +191,8 @@
     for (id obj in set)
     {
         id encoded = [self encodeCurrentObject:obj];
-        [vals addObject:encoded];
+        if (encoded)
+            [vals addObject:encoded];
     }
     
     return @{ [self keyForObject:set] : vals };
@@ -231,7 +239,8 @@
 {
     id encoded = [self encodeCurrentObject:object];
     NSMutableArray *arr = self.currentObjectValuesWithoutKeysStack.lastObject;
-    [arr addObject:encoded];
+    if (encoded)
+        [arr addObject:encoded];
 }
 
 - (void)encodeBytes:(const void *)byteaddr length:(NSUInteger)length
@@ -327,7 +336,8 @@
     else
     {
         NSMutableArray *arr = self.currentObjectValuesWithoutKeysStack.lastObject;
-        [arr addObject:object];
+        if (object)
+            [arr addObject:object];
     }
 }
 
@@ -389,10 +399,12 @@
     }
     else
     {
-        [self.sourceDictionaryStack addObject:dict[key]];
+        if (dict[key])
+            [self.sourceDictionaryStack addObject:dict[key]];
         
         id obj = [cls alloc];
-        [self.currentObjectStack addObject:obj];
+        if (obj)
+            [self.currentObjectStack addObject:obj];
         
         if (![obj conformsToProtocol:@protocol(NSCoding)])
         {
@@ -485,7 +497,8 @@
     id decodedObject = [self decodeCurrentObject:sourceObject];
     NSMutableArray *copy = arr.mutableCopy;
     [copy removeObjectAtIndex:0];
-    [self.sourceDictionaryStack addObject:copy];
+    if (copy)
+        [self.sourceDictionaryStack addObject:copy];
     
     return decodedObject;
 }
