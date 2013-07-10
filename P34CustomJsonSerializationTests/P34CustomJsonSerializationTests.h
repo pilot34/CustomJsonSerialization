@@ -8,6 +8,6 @@
 
 #import <SenTestingKit/SenTestingKit.h>
 
-@interface CustomJsonSerializationTests : SenTestCase
+@interface P34CustomJsonSerializationTests : SenTestCase
 
 @end

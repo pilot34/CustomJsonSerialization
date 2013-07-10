@@ -6,12 +6,12 @@
 //  Copyright (c) 2013 Gleb Tarasov. All rights reserved.
 //
 
-#import "CustomJsonSerializationTests.h"
+#import "P34CustomJsonSerializationTests.h"
 #import "P34JsonCoder.h"
 #import "Lecture.h"
 #import "Task.h"
 
-@implementation CustomJsonSerializationTests
+@implementation P34CustomJsonSerializationTests
 
 - (void)setUp
 {
@@ -97,6 +97,18 @@
     data = [P34JsonCoder dataWithJSONObject:@(YES)];
     num = [P34JsonCoder JSONObjectWithData:data];
     STAssertEqualObjects(num, @(YES), nil);
+    
+    data = [P34JsonCoder dataWithJSONObject:[NSDecimalNumber notANumber]];
+    num = [P34JsonCoder JSONObjectWithData:data];
+    STAssertNil(num, nil);
+    
+    data = [P34JsonCoder dataWithJSONObject:@(1./0.)];
+    num = [P34JsonCoder JSONObjectWithData:data];
+    STAssertNil(num, nil);
+    
+    data = [P34JsonCoder dataWithJSONObject:@(-1/0.)];
+    num = [P34JsonCoder JSONObjectWithData:data];
+    STAssertNil(num, nil);
 }
 
 - (void)testCollections

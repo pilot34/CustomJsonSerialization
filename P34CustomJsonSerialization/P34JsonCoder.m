@@ -21,14 +21,6 @@
 
 @implementation P34JsonCoder
 
-- (BOOL)isPrimitiveObject:(id)object
-{
-    return (!object
-            || object == NSNull.null
-            || [object isKindOfClass:NSString.class]
-            || [object isKindOfClass:NSNumber.class]);
-}
-
 - (NSString *)classNameForObject:(NSObject *)obj
 {
     if ([obj isKindOfClass:NSDate.class])
@@ -41,6 +33,12 @@
         return NSStringFromClass(NSDictionary.class);
     else
         return NSStringFromClass(obj.class);
+}
+
+- (BOOL)isPrimitiveObject:(id)value
+{
+    return ([value isKindOfClass:NSString.class]
+            || [value isKindOfClass:NSNumber.class]);
 }
 
 - (NSString *)keyForObject:(NSObject *)obj
@@ -203,15 +201,27 @@
     return @{ [self keyForObject:date] : @([date timeIntervalSince1970]) };
 }
 
+- (id)encodeNumber:(NSNumber *)number
+{
+     if (isfinite(number.doubleValue) && !isnan(number.doubleValue))
+         return number;
+    else
+        return NSNull.null;
+}
+
 - (id)encodeCurrentObject:(id)object 
 {
     if (!object || object == NSNull.null)
     {
         return NSNull.null;
     }
-    else if ([self isPrimitiveObject:object])
+    else if ([object isKindOfClass:NSString.class])
     {
         return object;
+    }
+    else if ([object isKindOfClass:NSNumber.class])
+    {
+        return [self encodeNumber:object];
     }
     else if ([object isKindOfClass:NSDate.class])
     {
